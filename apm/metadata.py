@@ -19,6 +19,7 @@ from apm.package import NPackage
 from .case.case import getCaseInsensitivePath
 
 
+# Function to attempt to retrieve metadata locally, if possible
 def get_local_package_metadata(
     paths: dict[str, Path], pkgname: str
 ) -> dict[Any, Any] | None:
@@ -47,7 +48,7 @@ def get_local_package_metadata(
     log.debug(f"The metadata for {pkgname} is not available locally.")
     return None
 
-
+    
 def get_remote_package_metadata(
     pkgname: str, commit: str | None = None, branch: str | None = None
 ) -> dict[Any, Any] | None:
@@ -99,7 +100,7 @@ def get_remote_package_metadata(
 
     return None
 
-
+# Function to attempt to retrieve the package's metadata
 def get_package_metadata(
     paths: dict[str, Path],
     pkgname: str,
@@ -110,13 +111,14 @@ def get_package_metadata(
 
     log.debug("Getting package info for:", pkgname)
 
+   # First, try to get the metadata locally
     info = get_local_package_metadata(paths, pkgname)
 
+    # If not available locally, try to retrieve from GitHub
     if info is None:
-        info = get_remote_package_metadata(
-            pkgname, commit=commit, branch=branch
-        )
+        info = get_remote_package_metadata(pkgname, commit=commit, branch=branch)
 
+    # If metadata is still not available, raise a fatal error and exit
     if info is None:
         fatal_error("No valid metadata available for", pkgname)
         sys.exit(1)
